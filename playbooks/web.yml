@@ -153,4 +153,6 @@
 
     - name: reload apache
       shell: sudo /usr/sbin/apache2ctl graceful
+      args:
+        warn: False
 
