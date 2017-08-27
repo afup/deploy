@@ -1,0 +1,152 @@
+- 
+  hosts: 127.0.0.1
+  gather_facts: no
+  vars:
+    deploy_repository: "http://github.com/afup/web.git"
+    deploy_path: "/home/sources/web"
+    deploy_branch: "master"
+    custom_shared_dir: "/home/afup/afup.org/shared"
+    event_custom_shared_dir: "/home/afup/event.afup.org/web"
+  tasks:
+    - name: Création du dossier où se trouveront les déploiements
+      deploy_helper:
+        path: "{{ deploy_path }}"
+    - name: "Récupération des sources"
+      git:
+        repo: "{{ deploy_repository }}"
+        dest: "{{ deploy_helper.new_release_path }}"
+        accept_hostkey: True
+        version: "{{ deploy_branch }}"
+        depth: 1
+      register: git_clone_result
+    - name: "récupération installer composer"
+      get_url:
+        url: https://getcomposer.org/installer
+        dest: "{{ deploy_helper.new_release_path }}/composer_installer"
+    - name: "installation de composer"
+      shell: "cat {{ deploy_helper.new_release_path }}/composer_installer | php -- --install-dir={{ deploy_helper.new_release_path }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+    - name: "Vendors php"
+      shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+      with_items:
+        - "{{ deploy_helper.new_release_path }}/event"
+        - "{{ deploy_helper.new_release_path }}"
+    - file:
+        path: "{{ deploy_helper.new_release_path }}/composer_installer"
+        state: absent
+    - file:
+        path: "{{ deploy_helper.new_release_path }}/composer.phar"
+        state: absent
+
+    - file:
+        path: "{{deploy_helper.new_release_path }}/{{ item }}"
+        state: absent
+      with_items:
+        - "app/config/parameters.yml.dist-docker"
+        - "htdocs/templates/forumphp2016/images/intervenants"
+        - "htdocs/templates/forumphp2005/talks"
+        - "var/logs"
+        - "event/wp/wp-content/plugins/hello.php"
+        - "event/wp/composer.json"
+
+    - name: Création des dossiers dans le shared de déploiement (pour les dossiers)
+      file:
+        path: "{{ deploy_helper.new_release_path }}/{{ item.target }}"
+        src: "{{ custom_shared_dir }}/{{ item.src }}"
+        state: link
+      with_items:
+        - src   : "htdocs/templates/forumphp2016/images/intervenants"
+          target: "htdocs/templates/forumphp2016/images/intervenants"
+        - src   : "htdocs/templates/forumphp2005/talks"
+          target: "htdocs/templates/forumphp2005/talks"
+        - src   : "htdocs/templates/forumphp2006/talks"
+          target: "htdocs/templates/forumphp2006/talks"
+        - src   : "htdocs/templates/forumphp2007/talks"
+          target: "htdocs/templates/forumphp2007/talks"
+        - src   : "htdocs/templates/forumphp2008/images/intervenants"
+          target: "htdocs/templates/forumphp2008/images/intervenants"
+        - src   : "htdocs/templates/forumphp2009/images/intervenants"
+          target: "htdocs/templates/forumphp2009/images/intervenants"
+        - src   : "htdocs/templates/forumphp2010/images/intervenants"
+          target: "htdocs/templates/forumphp2010/images/intervenants"
+        - src   : "htdocs/templates/forumphp2012/images/intervenants"
+          target: "htdocs/templates/forumphp2012/images/intervenants"
+        - src   : "htdocs/templates/forumphp2013/images/intervenants"
+          target: "htdocs/templates/forumphp2013/images/intervenants"
+        - src   : "htdocs/templates/forumphp2014/images/intervenants"
+          target: "htdocs/templates/forumphp2014/images/intervenants"
+        - src   : "htdocs/templates/forumphp2015/images/intervenants"
+          target: "htdocs/templates/forumphp2015/images/intervenants"
+        - src   : "tmp"
+          target: "tmp"
+        - src   : "cron/mailchimp.log"
+          target: "cron/mailchimp.log"
+        - src   : "cron/notifications_stats_ticket.log"
+          target: "cron/notifications_stats_ticket.log"
+        - src   : "cron/reminder.log"
+          target: "cron/reminder.log"
+        - src   : "cron/twitterbot.log"
+          target: "cron/twitterbot.log"
+        - src   : "cron/explorePlanete.log"
+          target: "cron/explorePlanete.log"
+        - src   : "cron/syncAfupRedmine.log"
+          target: "cron/syncAfupRedmine.log"
+        - src   : "cron/syncAfupSympa.log"
+          target: "cron/syncAfupSympa.log"
+        - src   : "app/config/parameters.yml"
+          target: "app/config/parameters.yml"
+        - src   : "htdocs/templates/forumphp2008/resumes"
+          target: "htdocs/templates/forumphp2008/resumes"
+        - src   : "htdocs/templates/forumphp2009/resumes"
+          target: "htdocs/templates/forumphp2009/resumes"
+        - src   : "htdocs/templates/forumphp2012/resumes"
+          target: "htdocs/templates/forumphp2012/resumes"
+        - src   : "htdocs/templates/forumphp2013/resumes"
+          target: "htdocs/templates/forumphp2013/resumes"
+        - src   : "htdocs/templates/phptourclermont2016/images/intervenants"
+          target: "htdocs/templates/phptourclermont2016/images/intervenants"
+        - src   : "htdocs/templates/phptourlille2011/images/intervenants"
+          target: "htdocs/templates/phptourlille2011/images/intervenants"
+        - src   : "htdocs/templates/phptourluxembourg2015/images/intervenants" 
+          target: "htdocs/templates/phptourluxembourg2015/images/intervenants"
+        - src   : "htdocs/templates/phptourlyon2014/images/intervenants"
+          target: "htdocs/templates/phptourlyon2014/images/intervenants"
+        - src   : "htdocs/templates/phptournantes2012/images/intervenants"
+          target: "htdocs/templates/phptournantes2012/images/intervenants" 
+        - src   : "htdocs/templates/site/images"
+          target: "htdocs/templates/site/images"
+        - src   : "htdocs/wiki/files"
+          target: "htdocs/wiki/files"
+        - src   : "htdocs/wiki/wakka.config.php"
+          target: "htdocs/wiki/wakka.config.php"
+        - src   : "htdocs/uploads"
+          target: "htdocs/uploads"
+        - src   : "configs/application/config.php"
+          target: "configs/application/config.php"
+        - src   : "htdocs/docs"
+          target: "htdocs/docs"
+        - src   : "var/logs"
+          target: "var/logs"
+
+    - file:
+        path: "{{ deploy_helper.new_release_path }}/event/wp/{{ item.target }}"
+        src: "{{ event_custom_shared_dir }}/{{ item.src }}"
+        state: link
+      with_items:
+        - src   : "wp-content/uploads"
+          target: "wp-content/uploads"
+        - src   : "wp-config.php"
+          target: "wp-config.php"
+
+
+    - name: Modification du lien symbolique current
+      deploy_helper:
+        path: "{{ deploy_path }}"
+        release: '{{ deploy_helper.new_release }}'
+        state: finalize
+        keep_releases: 4
