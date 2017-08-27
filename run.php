@@ -2,7 +2,7 @@
 
 function slackNotification($text, array $links = []) {
   $payload = [
-    'channel' => '#test_depoy3',
+    'channel' => '#outils',
     'text' => $text,
   ];
 
