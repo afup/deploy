@@ -28,7 +28,7 @@ if (!touch($lockFile)) {
 
 $playbook = escapeshellarg(__DIR__ . '/playbooks/' . $project . '.yml');
 
-$command = 'ANSIBLE_LOCAL_TEMP=/tmp/ansible_local_tmp_deploy ANSIBLE_REMOTE_TEMP=/tmp/ansible_remote_tmp_deploy /usr/local/bin/ansible-playbook -c local -vvv ' . $playbook;
+$command = 'ANSIBLE_LOCAL_TEMP=/tmp/ansible_local_tmp_deploy ANSIBLE_REMOTE_TEMP=/tmp/ansible_remote_tmp_deploy /usr/local/bin/ansible-playbook  -i "localhost," -c local -vvv ' . $playbook;
 
 $output = [];
 $return = 0;
