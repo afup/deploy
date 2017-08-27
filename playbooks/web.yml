@@ -150,3 +150,7 @@
         release: '{{ deploy_helper.new_release }}'
         state: finalize
         keep_releases: 4
+
+    - name: reload apache
+      shell: sudo /usr/sbin/apache2ctl graceful
+
