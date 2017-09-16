@@ -32,7 +32,10 @@ function slackNotification($text, array $links = []) {
 }
 
 $projects = [
-  'web' => ['Voir event.afup.org' => 'https://event.afup.org'],
+  'web' => [
+    'Voir afup.org' => 'https://afup.org',
+    'Voir event.afup.org' => 'https://event.afup.org',
+  ],
 ];
 
 if (!isset($argv[1])) {
