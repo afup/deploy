@@ -3,7 +3,8 @@
 $teamId = $_POST['team_id'];
 
 $allowedProjects = [
-  'web'
+  'web',
+  'barometre',
 ];
 
 if (

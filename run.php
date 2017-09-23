@@ -36,6 +36,9 @@ $projects = [
     'Voir afup.org' => 'https://afup.org',
     'Voir event.afup.org' => 'https://event.afup.org',
   ],
+  'barometre' => [
+    'Voir barometre.afup.org' => 'http://barometre.afup.org',
+  ]
 ];
 
 if (!isset($argv[1])) {
