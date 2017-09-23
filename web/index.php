@@ -18,7 +18,7 @@ if (
     touch($triggersDir . '/' . $project);
     $responseText = sprintf("Le déploiement du projet %s va commencer dans moins d'une minute", $project);
   } else {
-    $responseText = sprintf("Projet inconnu (projects possibles : %s)", $projet, implode(',', $allowedProjects));
+    $responseText = sprintf("Projet inconnu %s (projects possibles : %s)", $projet, implode(',', $allowedProjects));
   }
 } else {
   $responseText = "Vous n'êtes pas autorisé à effectuer un déploiement";
