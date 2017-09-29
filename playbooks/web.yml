@@ -40,12 +40,6 @@
         path: "{{ custom_shared_dir }}/{{ cache_dir }}/composer.phar"
         state: absent
 
-    - synchronize:
-        src: "{{ custom_shared_dir }}/{{ cache_dir }}"
-        dest: "{{ deploy_helper.new_release_path }}"
-        rsync_opts:
-          - "--exclude=.git"
-
     - apt_key:
         url: https://dl.yarnpkg.com/debian/pubkey.gpg
         state: present
@@ -67,6 +61,12 @@
       args:
         chdir: "{{ deploy_helper.new_release_path }}"
       when: packages.stat.exists
+
+    - synchronize:
+        src: "{{ custom_shared_dir }}/{{ cache_dir }}"
+        dest: "{{ deploy_helper.new_release_path }}"
+        rsync_opts:
+          - "--exclude=.git"
     
     - file:
         path: "{{deploy_helper.new_release_path }}/{{ item }}"
