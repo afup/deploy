@@ -7,37 +7,67 @@
     deploy_branch: "master"
     custom_shared_dir: "/home/afup/afup.org/shared"
     event_custom_shared_dir: "/home/afup/event.afup.org/web"
+    cache_dir: "cache"
   tasks:
     - deploy_helper:
         path: "{{ deploy_path }}"
     - git:
         repo: "{{ deploy_repository }}"
-        dest: "{{ deploy_helper.new_release_path }}"
+        dest: "{{ custom_shared_dir }}/{{ cache_dir }}"
         accept_hostkey: True
         version: "{{ deploy_branch }}"
         depth: 1
+        force: yes
       register: git_clone_result
     - get_url:
         url: https://getcomposer.org/installer
-        dest: "{{ deploy_helper.new_release_path }}/composer_installer"
-    - shell: "cat {{ deploy_helper.new_release_path }}/composer_installer | php -- --install-dir={{ deploy_helper.new_release_path }}"
+        dest: "{{ custom_shared_dir }}/{{ cache_dir }}/composer_installer"
+    - shell: "cat {{ custom_shared_dir }}/{{ cache_dir }}/composer_installer | php -- --install-dir={{ custom_shared_dir }}/{{ cache_dir }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
     - shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
       args:
-        chdir: "{{ deploy_helper.new_release_path }}"
+        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
       with_items:
-        - "{{ deploy_helper.new_release_path }}/event"
-        - "{{ deploy_helper.new_release_path }}"
+        - "{{ custom_shared_dir }}/{{ cache_dir }}/event"
+        - "{{ custom_shared_dir }}/{{ cache_dir }}"
     - file:
-        path: "{{ deploy_helper.new_release_path }}/composer_installer"
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/composer_installer"
         state: absent
     - file:
-        path: "{{ deploy_helper.new_release_path }}/composer.phar"
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/composer.phar"
         state: absent
 
+    - synchronize:
+        src: "{{ custom_shared_dir }}/{{ cache_dir }}"
+        dest: "{{ deploy_helper.new_release_path }}"
+        rsync_opts:
+          - "--exclude=.git"
+
+    - apt_key:
+        url: https://dl.yarnpkg.com/debian/pubkey.gpg
+        state: present
+
+    - apt_repository:
+        repo: deb https://dl.yarnpkg.com/debian/ stable main
+        state: present
+        filename: yarn
+
+    - apt:
+        name: yarn
+        state: present
+
+    - stat:
+        file: "{{ deploy_helper.new_release_path }}/package.json"
+        register: packages
+
+    - shell: "yarn install --prod --non-interactive"
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+      when: packages.stat.exists
+    
     - file:
         path: "{{deploy_helper.new_release_path }}/{{ item }}"
         state: absent
