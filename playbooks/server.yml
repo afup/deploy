@@ -1,16 +1,13 @@
 - 
   hosts: 127.0.0.1
-  gather_facts: no
-  tasks:
-    - apt_key:
-        url: https://dl.yarnpkg.com/debian/pubkey.gpg
-        state: present
-
-    - apt_repository:
-        repo: deb https://dl.yarnpkg.com/debian/ stable main
-        state: present
-        filename: yarn
-
-    - apt:
-        name: yarn
-        state: present
+  vars_files:
+    - ../vars/static.yml
+  roles: 
+    - php
+    - git
+    - afup
+    - nodejs
+    - yarn
+    # mysql
+    # apache
+    # nginx

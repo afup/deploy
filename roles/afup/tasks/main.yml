@@ -1,0 +1,62 @@
+---
+- name: Create group
+  group:
+    name: afup
+    state: present
+
+- name: Create user
+  user:
+    name: afup
+    home: /home/afup
+    group: afup
+    groups: www-data
+    shell: /bin/bash
+
+- name:
+  copy:
+    src: "sudoers.d/afup"
+    dest: "/etc/sudoers.d/afup"
+    owner: root
+    group: root
+    mode: 0440
+
+- name: Create base folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+    mode: 0775
+  with_items:
+    - "/home/afup/afup.org"
+    - "/home/afup/afup.org/shared"
+    - "/home/afup/afup.org/web"
+    - "/home/sources/" # specify this folder to ensure owner & group at this level
+    - "/home/sources/web/releases"
+    - "/home/sources/web/shared"
+    - "/home/afup/event.afup.org"
+    - "/home/afup/event.afup.org/web"
+
+- name: Create project afup specifics folders
+  file:
+    path: "/home/afup/afup.org/shared/{{ item }}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+    mode: 0775
+  with_items:
+    - "{{ static_directories }}"
+
+- name: Create project event specifics folders
+  file:
+    path: "/home/afup/event.afup.org/web/{{ item }}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+    mode: 0775
+  with_items:
+    - "{{ event_static_directories }}"
+...
