@@ -1,0 +1,4 @@
+logs/
+locks/
+triggers/
+*.retry
