@@ -20,23 +20,7 @@
     - get_url:
         url: https://getcomposer.org/installer
         dest: "{{ deploy_helper.new_release_path }}/composer_installer"
-    - shell: "cat {{ deploy_helper.new_release_path }}/composer_installer | php -- --install-dir={{ deploy_helper.new_release_path }}"
-      environment:
-        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
-    - shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
-      environment:
-        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
-      args:
-        chdir: "{{ deploy_helper.new_release_path }}"
-      with_items:
-        - "{{ deploy_helper.new_release_path }}/event"
-        - "{{ deploy_helper.new_release_path }}"
-    - file:
-        path: "{{ deploy_helper.new_release_path }}/composer_installer"
-        state: absent
-    - file:
-        path: "{{ deploy_helper.new_release_path }}/composer.phar"
-        state: absent
+    
 
     - file:
         path: "{{deploy_helper.new_release_path }}/{{ item }}"
@@ -91,6 +75,24 @@
         - "htdocs/docs"
         - "var/logs"
 
+    - shell: "cat {{ deploy_helper.new_release_path }}/composer_installer | php -- --install-dir={{ deploy_helper.new_release_path }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+    - shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+        SYMFONY_ENV: "prod"
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+      with_items:
+        - "{{ deploy_helper.new_release_path }}/event"
+        - "{{ deploy_helper.new_release_path }}"
+    - file:
+        path: "{{ deploy_helper.new_release_path }}/composer_installer"
+        state: absent
+    - file:
+        path: "{{ deploy_helper.new_release_path }}/composer.phar"
+        state: absent
     - file:
         path: "{{ deploy_helper.new_release_path }}/event/wp/{{ item.target }}"
         src: "{{ event_custom_shared_dir }}/{{ item.src }}"
