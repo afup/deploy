@@ -74,6 +74,11 @@
         chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
       when: packages.stat.exists
 
+    - shell: "/usr/local/bin/npm run build"
+      args:
+        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
+      when: packages.stat.exists
+
     - synchronize:
         src: "{{ custom_shared_dir }}/{{ cache_dir }}/"
         dest: "{{ deploy_helper.new_release_path }}"
