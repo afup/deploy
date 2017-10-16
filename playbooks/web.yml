@@ -4,7 +4,7 @@
   vars:
     deploy_repository: "http://github.com/afup/web.git"
     deploy_path: "/home/sources/web"
-    deploy_branch: "fix/lazy-connect"
+    deploy_branch: "master"
     custom_shared_dir: "/home/afup/afup.org/shared"
     event_custom_shared_dir: "/home/afup/event.afup.org/web"
     cache_dir: "cache"
