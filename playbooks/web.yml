@@ -79,7 +79,15 @@
         dest: "{{ deploy_helper.new_release_path }}"
         rsync_opts:
           - "--exclude=.git"
-    
+    - file:
+        path: "{{ deploy_helper.new_release_path }}/event/wp/{{ item.target }}"
+        src: "{{ event_custom_shared_dir }}/{{ item.src }}"
+        state: link
+      with_items:
+        - src   : "wp-content/uploads"
+          target: "wp-content/uploads"
+        - src   : "wp-config.php"
+          target: "wp-config.php"
     - file:
         path: "{{deploy_helper.new_release_path }}/{{ item }}"
         state: absent
