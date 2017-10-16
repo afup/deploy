@@ -1,0 +1,13 @@
+- 
+  hosts: 127.0.0.1
+  vars_files:
+    - ../vars/static.yml
+  roles: 
+    - php
+    - git
+    - afup
+    - nodejs
+    - yarn
+    # mysql
+    # apache
+    # nginx

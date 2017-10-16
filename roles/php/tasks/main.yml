@@ -1,0 +1,21 @@
+---
+
+- name: Installation de PHP
+  apt:
+    name: php5
+    state: present
+
+- name: Installation des extensions
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - php5-curl
+    - php5-mysqlnd
+
+- name: Activation des extensions
+  shell: "php5enmod {{ item }}"
+  with_items:
+    - curl
+    - mysqli
+...

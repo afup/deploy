@@ -1,0 +1,22 @@
+---
+- name: Add yarn public key
+  apt_key:
+    url: https://dl.yarnpkg.com/debian/pubkey.gpg
+    state: present
+
+- apt:
+    name: apt-transport-https
+    state: present
+
+- name: Add yarn repository 
+  apt_repository:
+    repo: deb https://dl.yarnpkg.com/debian/ stable main
+    state: present
+    filename: yarn
+    
+- name: Install yarn
+  apt:
+    name: yarn
+    state: present
+
+...

@@ -1,0 +1,1 @@
+afup ALL=(ALL) NOPASSWD: /usr/sbin/apache2ctl

@@ -7,21 +7,79 @@
     deploy_branch: "master"
     custom_shared_dir: "/home/afup/afup.org/shared"
     event_custom_shared_dir: "/home/afup/event.afup.org/web"
+    cache_dir: "cache"
+    source_config: "/home/afup/afup.org/shared/configs/"
+    source_parameters: "/home/afup/afup.org/shared/configs/app/parameters.yml"
   tasks:
+    - include_vars: ../vars/static.yml
     - deploy_helper:
         path: "{{ deploy_path }}"
     - git:
         repo: "{{ deploy_repository }}"
-        dest: "{{ deploy_helper.new_release_path }}"
+        dest: "{{ custom_shared_dir }}/{{ cache_dir }}"
         accept_hostkey: True
         version: "{{ deploy_branch }}"
         depth: 1
+        force: yes
       register: git_clone_result
-    - get_url:
-        url: https://getcomposer.org/installer
-        dest: "{{ deploy_helper.new_release_path }}/composer_installer"
-    
 
+    - file:
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/{{ item }}"
+        state: absent
+        force: yes
+      with_items:
+        - "{{ static_files }}"
+        - "{{ static_directories }}"
+    
+    - name: Link config files 
+      file:
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/{{ item }}"
+        src: "{{ custom_shared_dir }}/{{ item }}"
+        state: link
+        force: yes
+      with_items:
+        - "{{ static_files }}"
+        - "{{ static_directories }}"
+
+    - name: Download composer
+      get_url:
+        url: https://getcomposer.org/installer
+        dest: "{{ custom_shared_dir }}/{{ cache_dir }}/composer_installer"
+    - shell: "cat {{ custom_shared_dir }}/{{ cache_dir }}/composer_installer | php -- --install-dir={{ custom_shared_dir }}/{{ cache_dir }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+    - name: Install composer dependencies
+      shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+        SYMFONY_ENV: prod
+      args:
+        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
+      with_items:
+        - "{{ custom_shared_dir }}/{{ cache_dir }}/event"
+        - "{{ custom_shared_dir }}/{{ cache_dir }}"
+    - file:
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/composer_installer"
+        state: absent
+    - file:
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/composer.phar"
+        state: absent
+
+    - stat:
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/htdocs/package.json"
+      register: packages
+
+    - shell: "yarn install --prod --non-interactive"
+      args:
+        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}/htdocs"
+      when: packages.stat.exists
+
+    - synchronize:
+        src: "{{ custom_shared_dir }}/{{ cache_dir }}/"
+        dest: "{{ deploy_helper.new_release_path }}"
+        rsync_opts:
+          - "--exclude=.git"
+    
     - file:
         path: "{{deploy_helper.new_release_path }}/{{ item }}"
         state: absent
@@ -34,10 +92,12 @@
         - "event/wp/composer.json"
 
     - file:
-        path: "{{ deploy_helper.new_release_path }}/{{ item }}"
-        src: "{{ custom_shared_dir }}/{{ item }}"
+        path: "{{ deploy_helper.new_release_path }}/event/wp/{{ item }}"
+        src: "{{ event_custom_shared_dir }}/{{ item }}"
         state: link
       with_items:
+        - "wp-content/uploads"
+        - "wp-config.php"
         - "htdocs/templates/forumphp2016/images/intervenants"
         - "htdocs/templates/forumphp2005/talks"
         - "htdocs/templates/forumphp2006/talks"
@@ -102,7 +162,6 @@
           target: "wp-content/uploads"
         - src   : "wp-config.php"
           target: "wp-config.php"
-
 
     - deploy_helper:
         path: "{{ deploy_path }}"
