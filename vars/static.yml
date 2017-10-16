@@ -11,6 +11,7 @@ static_files:
   - "app/config/parameters.yml"
   - "htdocs/wiki/wakka.config.php"
   - "configs/application/config.php"
+  - "event/wp/wp-config.php"
 
 static_directories:
   - "htdocs/templates/forumphp2016/images/intervenants"

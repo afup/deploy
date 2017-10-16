@@ -66,12 +66,12 @@
         state: absent
 
     - stat:
-        path: "{{ custom_shared_dir }}/{{ cache_dir }}/htdocs/package.json"
+        path: "{{ custom_shared_dir }}/{{ cache_dir }}/package.json"
       register: packages
 
     - shell: "yarn install --prod --non-interactive"
       args:
-        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}/htdocs"
+        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
       when: packages.stat.exists
 
     - synchronize:
