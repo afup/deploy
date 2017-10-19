@@ -5,6 +5,7 @@ $teamId = $_POST['team_id'];
 $allowedProjects = [
   'web',
   'barometre',
+  'tombola',
 ];
 
 if (
