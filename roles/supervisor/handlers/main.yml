@@ -1,0 +1,9 @@
+---
+# supervisor/handlers/main.yml
+
+- name: reload supervisor
+  shell: /usr/bin/supervisorctl reload
+  become: true
+  become_user: root
+  become_method: sudo
+...

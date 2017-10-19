@@ -1,0 +1,7 @@
+---
+
+supervisor_programs:
+  - program: ratchet_tombola
+    command: /usr/bin/php /home/sources/tombola/current/server.php
+
+...
