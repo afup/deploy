@@ -1,0 +1,9 @@
+
+- apt: name=supervisor
+
+- name: Add Supervisor programs
+  template:
+    src: program.conf
+    dest: "/etc/supervisor/conf.d/program_{{ item.program }}.conf"
+  notify: reload supervisor
+  with_items: "{{ supervisor_programs }}"

@@ -2,6 +2,7 @@
   hosts: 127.0.0.1
   vars_files:
     - ../vars/static.yml
+    - ../vars/supervisor.yml
   roles: 
     - php
     - git
@@ -11,3 +12,4 @@
     # mysql
     # apache
     # nginx
+    - supervisor
