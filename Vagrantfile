@@ -42,6 +42,6 @@ Vagrant.configure("2") do |config|
     export ANSIBLE_FORCE_COLOR=1
     cd /vagrant/
     export ANSIBLE_CONFIG=/vagrant/vagrant/ansible.cfg
-    ansible-playbook /vagrant/playbooks/server.yml
+    ansible-playbook /vagrant/playbooks/vagrant.yml
   SHELL
 end
