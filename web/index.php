@@ -2,11 +2,7 @@
 
 $teamId = $_POST['team_id'];
 
-$allowedProjects = [
-  'web',
-  'barometre',
-  'tombola',
-];
+$allowedProjects = include('../projects.php');
 
 if (
   $_POST['team_domain'] == 'afup'
@@ -14,12 +10,12 @@ if (
   && $_POST['token'] == getenv('SLACK_TOKEN')
 ) {
   $project = trim($_POST['text']);
-  if (in_array($project, $allowedProjects)) {
+  if (isset($allowedProjects[$project])) {
     $triggersDir = __DIR__ . '/../triggers';
     touch($triggersDir . '/' . $project);
     $responseText = sprintf("Le déploiement du projet %s va commencer dans moins d'une minute", $project);
   } else {
-    $responseText = sprintf("Projet inconnu %s (projects possibles : %s)", $projet, implode(',', $allowedProjects));
+    $responseText = sprintf("Projet inconnu %s (projects possibles : %s)", $projet, implode(',', array_keys($allowedProjects)));
   }
 } else {
   $responseText = "Vous n'êtes pas autorisé à effectuer un déploiement";
