@@ -67,7 +67,7 @@
         state: finalize
         keep_releases: 4
   
-    - shell: sudo /usr/sbin/apache2ctl graceful
+    - shell: sudo /bin/systemctl restart php7.0-fpm.service
       args:
         warn: False
 
