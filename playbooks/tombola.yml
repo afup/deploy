@@ -6,6 +6,8 @@
     deploy_path: "/home/sources/tombola"
     deploy_branch: "master"
     cache_dir: "/home/sources/tombola/cache"
+    shared_dirs:
+      - public/.well-known
   tasks:
     - deploy_helper:
         path: "{{ deploy_path }}"
@@ -17,6 +19,11 @@
         depth: 1
         force: yes
       register: git_clone_result
+
+    - file:
+        path: '{{ deploy_helper.shared_path }}/{{ item }}'
+        state: directory
+      with_items: "{{ shared_dirs }}"
 
     - name: Download composer
       get_url:
@@ -47,6 +54,12 @@
         dest: "{{ deploy_helper.new_release_path }}"
         rsync_opts:
           - "--exclude=.git"
+
+    - file:
+        path: '{{ deploy_helper.new_release_path }}/{{ item }}'
+        src: '{{ deploy_helper.shared_path }}/{{ item }}'
+        state: link
+      with_items: "{{ shared_dirs }}"
 
     - deploy_helper:
         path: "{{ deploy_path }}"
