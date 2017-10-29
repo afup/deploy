@@ -12,9 +12,12 @@
     source_parameters: "/home/afup/afup.org/shared/configs/app/parameters.yml"
   tasks:
     - include_vars: ../vars/static.yml
-    - deploy_helper:
+    - name: "Preparing deploy folder"
+      deploy_helper:
         path: "{{ deploy_path }}"
-    - git:
+
+    - name: "Getting sources from git"
+      git:
         repo: "{{ deploy_repository }}"
         dest: "{{ custom_shared_dir }}/{{ cache_dir }}"
         accept_hostkey: True
@@ -22,16 +25,18 @@
         depth: 1
         force: yes
       register: git_clone_result
+      no_log: True
 
-    - file:
+    - name: "Removing static files and directories from git repository"
+      file:
         path: "{{ custom_shared_dir }}/{{ cache_dir }}/{{ item }}"
         state: absent
         force: yes
       with_items:
         - "{{ static_files }}"
         - "{{ static_directories }}"
-    
-    - name: Link config files 
+   
+    - name: "Linking config files"
       file:
         path: "{{ custom_shared_dir }}/{{ cache_dir }}/{{ item }}"
         src: "{{ custom_shared_dir }}/{{ item }}"
@@ -41,14 +46,17 @@
         - "{{ static_files }}"
         - "{{ static_directories }}"
 
-    - name: Download composer
+    - name: "Downloading composer"
       get_url:
         url: https://getcomposer.org/installer
         dest: "{{ custom_shared_dir }}/{{ cache_dir }}/composer_installer"
-    - shell: "cat {{ custom_shared_dir }}/{{ cache_dir }}/composer_installer | php -- --install-dir={{ custom_shared_dir }}/{{ cache_dir }}"
+
+    - name: "Installing composer"
+      shell: "cat {{ custom_shared_dir }}/{{ cache_dir }}/composer_installer | php -- --install-dir={{ custom_shared_dir }}/{{ cache_dir }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
-    - name: Install composer dependencies
+
+    - name: "Installing composer dependencies"
       shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
@@ -58,33 +66,43 @@
       with_items:
         - "{{ custom_shared_dir }}/{{ cache_dir }}/event"
         - "{{ custom_shared_dir }}/{{ cache_dir }}"
-    - file:
+
+    - name: "Removing composer installer"
+      file:
         path: "{{ custom_shared_dir }}/{{ cache_dir }}/composer_installer"
         state: absent
-    - file:
+
+    - name: "Removing composer.phar"
+      file:
         path: "{{ custom_shared_dir }}/{{ cache_dir }}/composer.phar"
         state: absent
 
-    - stat:
+    - name: "Checking for package.json"
+      stat:
         path: "{{ custom_shared_dir }}/{{ cache_dir }}/package.json"
       register: packages
 
-    - shell: "yarn install --prod --non-interactive"
+    - name: "Installing yarn dependancies"
+      shell: "yarn install --prod --non-interactive"
       args:
         chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
       when: packages.stat.exists
 
-    - shell: "/usr/local/bin/npm run build"
-      args:
-        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
-      when: packages.stat.exists
-
-    - synchronize:
+    - name: "Synchronizing files to the deploy folder"
+      synchronize:
         src: "{{ custom_shared_dir }}/{{ cache_dir }}/"
         dest: "{{ deploy_helper.new_release_path }}"
         rsync_opts:
           - "--exclude=.git"
-    - file:
+
+    - name: "Running npm build (webpack)"
+      shell: "/usr/local/bin/npm run build"
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+      when: packages.stat.exists
+
+    - name: "Creating event.afup.org symlinks"
+      file:
         path: "{{ deploy_helper.new_release_path }}/event/wp/{{ item.target }}"
         src: "{{ event_custom_shared_dir }}/{{ item.src }}"
         state: link
@@ -93,7 +111,9 @@
           target: "wp-content/uploads"
         - src   : "wp-config.php"
           target: "wp-config.php"
-    - file:
+
+    - name: "Removing unnecessary files/folders"
+      file:
         path: "{{deploy_helper.new_release_path }}/{{ item }}"
         state: absent
       with_items:
@@ -104,13 +124,15 @@
         - "event/wp/wp-content/plugins/hello.php"
         - "event/wp/composer.json"
 
-    - deploy_helper:
+    - name: "Changing current symlink"
+      deploy_helper:
         path: "{{ deploy_path }}"
         release: '{{ deploy_helper.new_release }}'
         state: finalize
         keep_releases: 4
 
-    - shell: sudo /usr/sbin/apache2ctl graceful
+    - name: "Reloading apache"
+      shell: sudo /usr/sbin/apache2ctl graceful
       args:
         warn: False
 
