@@ -1,35 +1,6 @@
 <?php
 
-function slackNotification($text, array $links = []) {
-  $payload = [
-    'channel' => '#outils',
-    'text' => $text,
-  ];
-
-  $slackToken = getenv('DEPLOY_SLACK_TOKEN');
-
-  foreach ($links as $title => $href) {
-    $payload['attachments'][] = [
-      "title_link" => $href,
-      "text" => $title,
-    ];
-  }
-
-  $url = "https://hooks.slack.com/services/";
-
-  $jsonPayload = json_encode($payload);
-  $curl = curl_init($url . $slackToken);
-  curl_setopt_array($curl, [
-      CURLOPT_RETURNTRANSFER => 1,
-      CURLOPT_POSTFIELDS => http_build_query(['payload' => $jsonPayload]),
-  ]);
-
-  $result = curl_exec($curl);
-
-  if ($result != 'ok') {
-    throw new \RuntimeException('Notification slack impossible : ' . var_export($result, true));
-  }
-}
+require_once __DIR__ . '/lib.php';
 
 $projects = include('projects.php');
 
@@ -59,17 +30,18 @@ if (!touch($lockFile)) {
   throw new \RuntimeException('Erreur écriture du fichier de lock ' . $lockFile);
 }
 
+$channelName = "#outils";
+
 $playbook = escapeshellarg(__DIR__ . '/playbooks/' . $project . '.yml');
 
-$command = 'ANSIBLE_LOCAL_TEMP=/tmp/ansible_local_tmp_deploy ANSIBLE_REMOTE_TEMP=/tmp/ansible_remote_tmp_deploy /usr/local/bin/ansible-playbook  -i "localhost," -c local -vvv ' . $playbook;
+$command = 'ANSIBLE_LOCAL_TEMP=/tmp/ansible_local_tmp_deploy ANSIBLE_REMOTE_TEMP=/tmp/ansible_remote_tmp_deploy ANSIBLE_CALLBACK_WHITELIST=profile_tasks /usr/local/bin/ansible-playbook  -i "localhost," -c local ' . $playbook . ' | grep --line-buffered -v -P "changed:|ok:|\(\d{1}:\d{2}:\d{2}.\d{3}\)|==============" ';
 
+$slack = new Slack(getenv('DEPLOY_API_KEY'), "Déploiement", 'https://avatars2.githubusercontent.com/u/1090307?s=200&v=4');
+$deploySlack = new DeploySlack($slack, $channelName);
 
-slackNotification(sprintf('Le déploiement du projet %s a débuté', $project));
+$slack->postMessage($channelName, sprintf('Le déploiement du projet %s a débuté', $project));
 
-$output = [];
-$return = 0;
-exec($command, $output, $return);
-$outputStr = implode(PHP_EOL, $output);
+$outputStr = $deploySlack->executeAndSendToSlack($slack, $command);
 
 $logFile = __DIR__ . '/logs/deploy_' . $project . '_' . date('Y-m-d_H-i-s') . '_' . getmypid() . '.log';
 if (!file_put_contents($logFile, $outputStr)) {
@@ -84,5 +56,4 @@ if (!unlink($lockFile)) {
   throw new \RuntimeException('Erreur suppression du fichier de lock ' . $lockFile);
 }
 
-slackNotification(sprintf('Le projet %s a été mis à jour', $project), isset($projects[$project]) ? $projects[$project] : []);
-
+$slack->postMessage($channelName, sprintf('Le projet %s a été mis à jour', $project), isset($projects[$project]) ? $projects[$project] : []);
