@@ -41,20 +41,34 @@
         - "{{ static_files }}"
         - "{{ static_directories }}"
 
-    - name: Download composer
+    - stat:
+        path: "{{ custom_shared_dir }}/composer.phar"
+      register: composer
+
+    - name: Download composer if absent
       get_url:
         url: https://getcomposer.org/installer
-        dest: "{{ custom_shared_dir }}/{{ cache_dir }}/composer_installer"
-    - shell: "cat {{ custom_shared_dir }}/{{ cache_dir }}/composer_installer | php -- --install-dir={{ custom_shared_dir }}/{{ cache_dir }}"
+        dest: "{{ custom_shared_dir }}/composer_installer"
+      when: composer.stat.exists === False
+
+    - shell: "cat {{ custom_shared_dir }}/composer_installer | php -- --install-dir={{ custom_shared_dir }}"
+      when: composer.stat.exists === False
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+
+    - name: Update composer if it was previously installed
+      shell: php composer.phar --self-update
+      args:
+        chdir: "{{ custom_shared_dir }}"
+      when: composer.stat.exists === True
+
     - name: Install composer dependencies
       shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
         SYMFONY_ENV: prod
       args:
-        chdir: "{{ custom_shared_dir }}/{{ cache_dir }}"
+        chdir: "{{ custom_shared_dir }}"
       with_items:
         - "{{ custom_shared_dir }}/{{ cache_dir }}/event"
         - "{{ custom_shared_dir }}/{{ cache_dir }}"
