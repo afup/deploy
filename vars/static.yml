@@ -9,6 +9,7 @@ static_files:
   - "cron/syncAfupRedmine.log"
   - "cron/syncAfupSympa.log"
   - "app/config/parameters.yml"
+  - "app/config/gestion-mailing-49e890b9dfe4.json"
   - "htdocs/wiki/wakka.config.php"
   - "configs/application/config.php"
   - "event/wp/wp-config.php"
