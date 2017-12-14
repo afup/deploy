@@ -8,8 +8,6 @@
     custom_shared_dir: "/home/afup/afup.org/shared"
     event_custom_shared_dir: "/home/afup/event.afup.org/web"
     cache_dir: "cache"
-    source_config: "/home/afup/afup.org/shared/configs/"
-    source_parameters: "/home/afup/afup.org/shared/configs/app/parameters.yml"
   tasks:
     - include_vars: ../vars/static.yml
     - name: "Preparing deploy folder"
