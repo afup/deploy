@@ -1,0 +1,129 @@
+- 
+  hosts: 127.0.0.1
+  gather_facts: no
+  vars:
+    deploy_repository: "http://github.com/afup/barometre.git"
+    deploy_path: "/home/sources/barometre_preprod"
+    deploy_branch: "preprod"
+    shared_files:
+      - app/config/parameters.yml
+    shared_dirs:
+      - app/logs
+      - web/.well-known
+    deploy_exclude_paths:
+      - app/logs
+      - web/app_dev.php
+      - .git
+  tasks:
+    - name: "Preparing deploy folder"
+      deploy_helper:
+        path: "{{ deploy_path }}"
+
+    - name: "Getting sources from git"
+      git:
+        repo: "{{ deploy_repository }}"
+        dest: "{{ deploy_helper.new_release_path }}"
+        accept_hostkey: True
+        version: "{{ deploy_branch }}"
+        depth: 1
+      register: git_clone_result
+
+    - name: "Removing files excluded from deployment"
+      file:
+        path: "{{ deploy_helper.new_release_path }}/{{ item }}"
+        state: absent
+      with_items: "{{ deploy_exclude_paths }}"
+
+    - name: "Creating shared directories"
+      file:
+        path: '{{ deploy_helper.shared_path }}/{{ item }}'
+        state: directory
+      with_items: "{{ shared_dirs }}"
+
+    - name: "Creating shared files directories"
+      file:
+        path: '{{ deploy_helper.shared_path }}/{{ item | dirname }}'
+        state: directory
+      with_items: "{{ shared_files }}"
+
+    - name: "Creating shared directories symlinks"
+      file:
+        path: '{{ deploy_helper.new_release_path }}/{{ item }}'
+        src: '{{ deploy_helper.shared_path }}/{{ item }}'
+        state: link
+      with_items: "{{ shared_dirs }}"
+
+    - name: "Creating shared files symlinks"
+      file:
+        path: '{{ deploy_helper.new_release_path }}/{{ item }}'
+        src: '{{ deploy_helper.shared_path }}/{{ item }}'
+        state: link
+      with_items: "{{ shared_files }}"
+
+    - name: "Downloading composer"
+      get_url:
+        url: https://getcomposer.org/installer
+        dest: "{{ deploy_helper.new_release_path }}/composer_installer"
+
+    - name: "Installing composer"
+      shell: "cat {{ deploy_helper.new_release_path }}/composer_installer | php -- --install-dir={{ deploy_helper.new_release_path }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+
+    - name: "Installing composer dependencies"
+      shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
+      environment:
+        COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
+        SYMFONY_ENV: "prod"
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+      with_items:
+        - "{{ deploy_helper.new_release_path }}"
+
+    - name: "Installing ruby dependancies"
+      shell: /usr/local/bin/bundle install --path ./bundle/
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+
+    - name: "Installing npm dependancies"
+      shell: npm install
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+
+    - name: "Installing bower dependancies"
+      shell: node_modules/bower/bin/bower install
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+
+    - name: "Preparing assets"
+      shell: node_modules/grunt-cli/bin/grunt
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+
+    - name: "Running database migrations"
+      shell: php app/console doctrine:migrations:migrate --env=prod --no-interaction
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+
+    - name: "Removing composer installer"
+      file:
+        path: "{{ deploy_helper.new_release_path }}/composer_installer"
+        state: absent
+
+    - name: "Removing composer.phar"
+      file:
+        path: "{{ deploy_helper.new_release_path }}/composer.phar"
+        state: absent
+
+    - name: "Changing current symlink"
+      deploy_helper:
+        path: "{{ deploy_path }}"
+        release: '{{ deploy_helper.new_release }}'
+        state: finalize
+        keep_releases: 4
+
+    - name: "Reloading apache"
+      shell: sudo /usr/sbin/apache2ctl graceful
+      args:
+        warn: False
+
