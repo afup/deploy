@@ -1,1 +1,1 @@
-afup ALL=(ALL) NOPASSWD: /usr/sbin/apache2ctl,/usr/bin/supervisorctl restart *,/usr/bin/supervisorctl reload
+afup ALL=(ALL) NOPASSWD: /usr/sbin/apache2ctl,/usr/bin/supervisorctl restart *,/usr/bin/supervisorctl reload,/bin/systemctl restart php7.0-fpm.service
