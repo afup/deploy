@@ -3,8 +3,8 @@
   gather_facts: no
   vars:
     deploy_repository: "http://github.com/afup/barometre.git"
-    deploy_path: "/home/sources/barometre"
-    deploy_branch: "master"
+    deploy_path: "/home/sources/barometre_preprod"
+    deploy_branch: "preprod"
     shared_files:
       - app/config/parameters.yml
     shared_dirs:

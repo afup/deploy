@@ -9,9 +9,12 @@
     shared_dirs:
       - public/.well-known
   tasks:
-    - deploy_helper:
+    - name: "Preparing deploy folder"
+      deploy_helper:
         path: "{{ deploy_path }}"
-    - git:
+
+    - name: "Getting sources from git"
+      git:
         repo: "{{ deploy_repository }}"
         dest: "{{ cache_dir }}"
         accept_hostkey: True
@@ -20,21 +23,23 @@
         force: yes
       register: git_clone_result
 
-    - file:
+    - name: "Creating shared directories"
+      file:
         path: '{{ deploy_helper.shared_path }}/{{ item }}'
         state: directory
       with_items: "{{ shared_dirs }}"
 
-    - name: Download composer
+    - name: "Downloading composer"
       get_url:
         url: https://getcomposer.org/installer
         dest: "{{ cache_dir }}/composer_installer"
 
-    - shell: "cat {{ cache_dir }}/composer_installer | php -- --install-dir={{ cache_dir }}"
+    - name: "Installing composer"
+      shell: "cat {{ cache_dir }}/composer_installer | php -- --install-dir={{ cache_dir }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
 
-    - name: Install composer dependencies
+    - name: "Installing composer dependencies"
       shell: "php7.0 composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ cache_dir }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
@@ -42,35 +47,41 @@
       args:
         chdir: "{{ cache_dir }}"
 
-    - file:
+    - name: "Removing composer installer and composer.phar"
+      file:
         path: "{{ item }}"
         state: absent
       with_items:
         - "{{ cache_dir }}/composer_installer"
         - "{{ cache_dir }}/composer.phar"
 
-    - synchronize:
+    - name: "Synchronizing files to the deploy folder"
+      synchronize:
         src: "{{ cache_dir }}/"
         dest: "{{ deploy_helper.new_release_path }}"
         rsync_opts:
           - "--exclude=.git"
 
-    - file:
+    - name: "Creating shared dirs"
+      file:
         path: '{{ deploy_helper.new_release_path }}/{{ item }}'
         src: '{{ deploy_helper.shared_path }}/{{ item }}'
         state: link
       with_items: "{{ shared_dirs }}"
 
-    - deploy_helper:
+    - name: "Changing current symlink"
+      deploy_helper:
         path: "{{ deploy_path }}"
         release: '{{ deploy_helper.new_release }}'
         state: finalize
         keep_releases: 4
   
+    - name: "Reloading fpm"
     - shell: sudo /bin/systemctl restart php7.0-fpm.service
       args:
         warn: False
 
-    - shell: sudo /usr/bin/supervisorctl restart ratchet_tombola
+    - name: "Restarting ratchet_tombola"
+      shell: sudo /usr/bin/supervisorctl restart ratchet_tombola
       args:
         warn: False
