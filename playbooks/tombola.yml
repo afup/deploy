@@ -77,7 +77,7 @@
         keep_releases: 4
   
     - name: "Reloading fpm"
-    - shell: sudo /bin/systemctl restart php7.0-fpm.service
+      shell: sudo /bin/systemctl restart php7.0-fpm.service
       args:
         warn: False
 
