@@ -5,7 +5,7 @@
     deploy_repository: "http://github.com/afup/web.git"
     deploy_path: "/home/sources/web"
     deploy_branch: "master"
-    custom_shared_dir: "/home/afup/afup.org/shared"
+    custom_shared_dir: "/home/sources/web/shared/"
     clone_cache_dir: "/home/sources/web/clone_cache_dir"
     event_custom_shared_dir: "/home/afup/event.afup.org/web"
   tasks:
