@@ -10,7 +10,6 @@ static_files:
   - "cron/syncAfupSympa.log"
   - "app/config/parameters.yml"
   - "app/config/gestion-mailing-49e890b9dfe4.json"
-  - "htdocs/wiki/wakka.config.php"
   - "configs/application/config.php"
   - "event/wp/wp-config.php"
 
@@ -37,7 +36,6 @@ static_directories:
   - "htdocs/templates/phptourlyon2014/images/intervenants"
   - "htdocs/templates/phptournantes2012/images/intervenants"
   - "htdocs/templates/site/images"
-  - "htdocs/wiki/files"
   - "htdocs/uploads"
   - "htdocs/docs"
   - "var/logs"
