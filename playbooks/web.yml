@@ -7,7 +7,6 @@
     deploy_branch: "master"
     custom_shared_dir: "/home/sources/web/shared/"
     clone_cache_dir: "/home/sources/web/clone_cache_dir"
-    event_custom_shared_dir: "/home/afup/event.afup.org/web"
   tasks:
     - include_vars: ../vars/static.yml
     - name: "Preparing deploy folder"
@@ -40,6 +39,11 @@
         - "{{ static_directories }}"
    
     - name: "Create directory for the event/wp/wp-config.php static file"
+      file:
+        path: "{{ deploy_path }}/shared_wp"
+        state: directory
+
+    - name: "Create wp_shared directory"
       file:
         path: "{{ deploy_helper.new_release_path }}/event/wp"
         state: directory
@@ -105,7 +109,7 @@
     - name: "Creating event.afup.org symlinks"
       file:
         path: "{{ deploy_helper.new_release_path }}/event/wp/{{ item.target }}"
-        src: "{{ event_custom_shared_dir }}/{{ item.src }}"
+        src: "{{ deploy_path }}/shared_wp/{{ item.src }}"
         state: link
       with_items:
         - src   : "wp-content/uploads"
