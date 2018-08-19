@@ -5,7 +5,6 @@
     deploy_repository: "http://github.com/afup/web.git"
     deploy_path: "/home/sources/web"
     deploy_branch: "master"
-    custom_shared_dir: "/home/sources/web/shared/"
     clone_cache_dir: "/home/sources/web/clone_cache_dir"
   tasks:
     - include_vars: ../vars/static.yml
@@ -51,7 +50,7 @@
     - name: "Linking config files"
       file:
         path: "{{ deploy_helper.new_release_path }}/{{ item }}"
-        src: "{{ custom_shared_dir }}/{{ item }}"
+        src: "{{ deploy_helper.shared_path }}/{{ item }}"
         state: link
         force: yes
       with_items:
