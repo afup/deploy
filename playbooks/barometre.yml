@@ -1,4 +1,4 @@
-- 
+-
   hosts: 127.0.0.1
   gather_facts: no
   vars:
@@ -80,18 +80,8 @@
       with_items:
         - "{{ deploy_helper.new_release_path }}"
 
-    - name: "Installing ruby dependancies"
-      shell: /usr/local/bin/bundle install --path ./bundle/
-      args:
-        chdir: "{{ deploy_helper.new_release_path }}"
-
     - name: "Installing npm dependancies"
       shell: npm install
-      args:
-        chdir: "{{ deploy_helper.new_release_path }}"
-
-    - name: "Installing bower dependancies"
-      shell: node_modules/bower/bin/bower install
       args:
         chdir: "{{ deploy_helper.new_release_path }}"
 
