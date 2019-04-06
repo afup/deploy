@@ -32,7 +32,6 @@ static_directories:
   - "htdocs/templates/forumphp2013/resumes"
   - "htdocs/templates/phptourclermont2016/images/intervenants"
   - "htdocs/templates/phptourlille2011/images/intervenants"
-  - "htdocs/templates/phptourluxembourg2015/images/intervenants" 
   - "htdocs/templates/phptourlyon2014/images/intervenants"
   - "htdocs/templates/phptournantes2012/images/intervenants"
   - "htdocs/templates/site/images"
