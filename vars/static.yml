@@ -25,8 +25,6 @@ static_directories:
   - "tmp"
   - "htdocs/templates/forumphp2008/resumes"
   - "htdocs/templates/forumphp2009/resumes"
-  - "htdocs/templates/forumphp2012/resumes"
-  - "htdocs/templates/forumphp2013/resumes"
   - "htdocs/templates/phptourclermont2016/images/intervenants"
   - "htdocs/templates/site/images"
   - "htdocs/uploads"
