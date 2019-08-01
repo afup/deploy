@@ -47,6 +47,11 @@
         path: "{{ deploy_helper.new_release_path }}/event/wp"
         state: directory
 
+    - name: "Create cron directory"
+      file:
+        path: "{{ deploy_helper.new_release_path }}/cron"
+        state: directory
+
     - name: "Linking config files"
       file:
         path: "{{ deploy_helper.new_release_path }}/{{ item }}"
