@@ -8,10 +8,10 @@
     shared_files:
       - app/config/parameters.yml
     shared_dirs:
-      - app/logs
+      - var/logs
       - web/.well-known
     deploy_exclude_paths:
-      - app/logs
+      - var/logs
       - web/app_dev.php
       - .git
   tasks:
@@ -91,7 +91,7 @@
         chdir: "{{ deploy_helper.new_release_path }}"
 
     - name: "Running database migrations"
-      shell: php app/console doctrine:migrations:migrate --env=prod --no-interaction
+      shell: php bin/console doctrine:migrations:migrate --env=prod --no-interaction
       args:
         chdir: "{{ deploy_helper.new_release_path }}"
 
