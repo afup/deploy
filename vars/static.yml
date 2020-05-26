@@ -15,17 +15,7 @@ static_files:
 
 static_directories:
   - "htdocs/templates/forumphp2016/images/intervenants"
-  - "htdocs/templates/forumphp2005/talks"
-  - "htdocs/templates/forumphp2006/talks"
-  - "htdocs/templates/forumphp2007/talks"
-  - "htdocs/templates/forumphp2008/images/intervenants"
-  - "htdocs/templates/forumphp2009/images/intervenants"
-  - "htdocs/templates/forumphp2010/images/intervenants"
-  - "htdocs/templates/forumphp2015/images/intervenants"
   - "tmp"
-  - "htdocs/templates/forumphp2008/resumes"
-  - "htdocs/templates/forumphp2009/resumes"
-  - "htdocs/templates/phptourclermont2016/images/intervenants"
   - "htdocs/templates/site/images"
   - "htdocs/uploads"
   - "htdocs/docs"
