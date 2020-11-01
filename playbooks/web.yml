@@ -68,7 +68,7 @@
         dest: "{{ deploy_helper.new_release_path }}/composer_installer"
 
     - name: "Installing composer"
-      shell: "cat {{ deploy_helper.new_release_path }}/composer_installer | php -- --install-dir={{ deploy_helper.new_release_path }}"
+      shell: "cat {{ deploy_helper.new_release_path }}/composer_installer | php -- --install-dir={{ deploy_helper.new_release_path }}  --version=1.10.16"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
 
