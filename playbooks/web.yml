@@ -133,6 +133,11 @@
         - "event/wp/wp-content/plugins/hello.php"
         - "event/wp/composer.json"
 
+    - name: "Running SQL patches"
+      shell: "php ./bin/phinx migrate"
+      args:
+        chdir: "{{ deploy_helper.new_release_path }}"
+
     - name: "Changing current symlink"
       deploy_helper:
         path: "{{ deploy_path }}"
