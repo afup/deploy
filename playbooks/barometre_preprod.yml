@@ -2,6 +2,7 @@
   hosts: 127.0.0.1
   gather_facts: no
   vars:
+    php_bin: "php7.0"
     deploy_repository: "http://github.com/afup/barometre.git"
     deploy_path: "/home/sources/barometre_preprod"
     deploy_branch: "preprod"
@@ -71,7 +72,7 @@
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
 
     - name: "Installing composer dependencies"
-      shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
+      shell: "{{ php_bin }} composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
       environment:
         COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
         SYMFONY_ENV: "prod"
@@ -91,7 +92,7 @@
         chdir: "{{ deploy_helper.new_release_path }}"
 
     - name: "Running database migrations"
-      shell: php bin/console doctrine:migrations:migrate --env=prod --no-interaction
+      shell: "{{ php_bin }} bin/console doctrine:migrations:migrate --env=prod --no-interaction"
       args:
         chdir: "{{ deploy_helper.new_release_path }}"
 
