@@ -30,7 +30,7 @@ if (!touch($lockFile)) {
   throw new \RuntimeException('Erreur écriture du fichier de lock ' . $lockFile);
 }
 
-$channelName = "#outils";
+$channelName = "#outils-notifications";
 
 $playbook = escapeshellarg(__DIR__ . '/playbooks/' . $project . '.yml');
 
