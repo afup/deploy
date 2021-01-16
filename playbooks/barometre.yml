@@ -113,8 +113,7 @@
         state: finalize
         keep_releases: 4
 
-    - name: "Reloading apache"
-      shell: sudo /usr/sbin/apache2ctl graceful
+    - name: "Reloading fpm"
+      shell: sudo /bin/systemctl restart php7.0-fpm.service
       args:
         warn: False
-
