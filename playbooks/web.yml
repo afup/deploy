@@ -1,4 +1,4 @@
-- 
+-
   hosts: 127.0.0.1
   gather_facts: no
   vars:
@@ -36,7 +36,7 @@
       with_items:
         - "{{ static_files }}"
         - "{{ static_directories }}"
-   
+
     - name: "Create directory for the event/wp/wp-config.php static file"
       file:
         path: "{{ deploy_path }}/shared_wp"
@@ -55,7 +55,7 @@
     - name: "Linking config files"
       file:
         path: "{{ deploy_helper.new_release_path }}/{{ item }}"
-        src: "{{ deploy_helper.shared_path }}/{{ item }}"
+        src: "{{ deploy_helper.shared_path }}/{{ item }}"
         state: link
         force: yes
       with_items:
