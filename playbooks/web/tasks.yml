@@ -1,7 +1,7 @@
 ---
 
-- include_vars: ../../vars/static.yml
-  
+- include_vars: ../vars/static.yml
+
 - name: "Preparing deploy folder"
   deploy_helper:
     path: "{{ deploy_path }}"
