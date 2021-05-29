@@ -35,6 +35,9 @@
     - "/home/sources/" # specify this folder to ensure owner & group at this level
     - "/home/sources/web/releases"
     - "/home/sources/web/shared"
+    - "/home/sources/web_preprod/releases"
+    - "/home/sources/web_preprod/shared"
+    - "/home/sources/web_preprod/shared/var/logs"
     - "/home/afup/event.afup.org"
     - "/home/afup/event.afup.org/web"
 

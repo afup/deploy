@@ -1,0 +1,8 @@
+---
+
+deploy_repository: "http://github.com/afup/web.git"
+deploy_path: "/home/sources/web"
+deploy_branch: "master"
+clone_cache_dir: "/home/sources/web/clone_cache_dir"
+
+...

@@ -17,7 +17,7 @@ if (!is_file($triggerFile)) {
 }
 
 if (!unlink($triggerFile)) {
-  throw new \RuntimeException('Erreur suppressison du fichier de trigger ' . $lockFile);
+  throw new \RuntimeException('Erreur suppressison du fichier de trigger ' . $triggerFile);
 }
 
 $lockFile = __DIR__ . '/locks/' . $project;
@@ -46,10 +46,6 @@ $outputStr = $deploySlack->executeAndSendToSlack($slack, $command);
 $logFile = __DIR__ . '/logs/deploy_' . $project . '_' . date('Y-m-d_H-i-s') . '_' . getmypid() . '.log';
 if (!file_put_contents($logFile, $outputStr)) {
   throw new \RuntimeException('Erreur écriture log ' . $logFile);
-}
-
-if ($return) {
-  throw new RuntimeException("Erreur au lancement d'ansible (' . $return . ') : " . $outputStr);
 }
 
 if (!unlink($lockFile)) {

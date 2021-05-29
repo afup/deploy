@@ -2,6 +2,6 @@
   hosts: 127.0.0.1
   gather_facts: no
   tasks:
-    - include_vars: ../vars/web.yml
+    - include_vars: ../vars/web_preprod.yml
     - include: web/tasks.yml
 

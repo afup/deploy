@@ -1,0 +1,8 @@
+---
+
+deploy_repository: "http://github.com/afup/web.git"
+deploy_path: "/home/sources/web_preprod"
+deploy_branch: "feature/event.afup.org-new-theme"
+clone_cache_dir: "/home/sources/web_preprod/clone_cache_dir"
+
+...
