@@ -31,16 +31,6 @@
     - "{{ static_files }}"
     - "{{ static_directories }}"
 
-- name: "Create directory for the event/wp/wp-config.php static file"
-  file:
-    path: "{{ deploy_path }}/shared_wp"
-    state: directory
-
-- name: "Create wp_shared directory"
-  file:
-    path: "{{ deploy_helper.new_release_path }}/event/wp"
-    state: directory
-
 - name: "Create cron directory"
   file:
     path: "{{ deploy_helper.new_release_path }}/cron"
@@ -74,7 +64,6 @@
   args:
     chdir: "{{ deploy_helper.new_release_path }}"
   with_items:
-    - "{{ deploy_helper.new_release_path }}/event"
     - "{{ deploy_helper.new_release_path }}"
 
 - name: "Removing composer installer"
@@ -104,17 +93,6 @@
     chdir: "{{ deploy_helper.new_release_path }}"
   when: packages.stat.exists
 
-- name: "Creating event.afup.org symlinks"
-  file:
-    path: "{{ deploy_helper.new_release_path }}/event/wp/{{ item.target }}"
-    src: "{{ deploy_path }}/shared_wp/{{ item.src }}"
-    state: link
-  with_items:
-    - src   : "wp-content/uploads"
-      target: "wp-content/uploads"
-    - src   : "wp-config.php"
-      target: "wp-config.php"
-
 - name: "Removing unnecessary files/folders"
   file:
     path: "{{deploy_helper.new_release_path }}/{{ item }}"
@@ -124,8 +102,6 @@
     - "htdocs/templates/forumphp2016/images/intervenants"
     - "htdocs/templates/forumphp2005/talks"
     - "var/logs"
-    - "event/wp/wp-content/plugins/hello.php"
-    - "event/wp/composer.json"
 
 - name: "Running SQL patches"
   shell: "php ./bin/phinx migrate"
