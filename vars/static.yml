@@ -11,7 +11,6 @@ static_files:
   - "app/config/parameters.yml"
   - "app/config/gestion-mailing-49e890b9dfe4.json"
   - "configs/application/config.php"
-  - "event/wp/wp-config.php"
 
 static_directories:
   - "htdocs/templates/forumphp2016/images/intervenants"
@@ -20,8 +19,5 @@ static_directories:
   - "htdocs/uploads"
   - "htdocs/docs"
   - "var/logs"
-
-event_static_directories:
-  - "wp-content/uploads"
 
 ...
