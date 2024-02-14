@@ -57,7 +57,7 @@
     COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
 
 - name: "Installing composer dependencies"
-  shell: "php composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
+  shell: "php7.0 composer.phar install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction --working-dir={{ item }}"
   environment:
     COMPOSER_HOME: "/tmp/tmp_composer_home_deploy"
     SYMFONY_ENV: prod
