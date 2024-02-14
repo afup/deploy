@@ -104,7 +104,7 @@
     - "var/logs"
 
 - name: "Running SQL patches"
-  shell: "php ./bin/phinx migrate"
+  shell: "php7.0 ./bin/phinx migrate"
   args:
     chdir: "{{ deploy_helper.new_release_path }}"
 
